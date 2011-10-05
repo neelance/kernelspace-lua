@@ -8,8 +8,9 @@
 #define llimits_h
 
 
-#include <limits.h>
 #include <stddef.h>
+
+#define UCHAR_MAX 255
 
 
 #include "lua.h"
@@ -238,7 +239,6 @@ union luai_Cast { double l_d; LUA_INT32 l_p[2]; };
 #if !defined(lua_number2unsigned)	/* { */
 /* the following definition assures proper modulo behavior */
 #if defined(LUA_NUMBER_DOUBLE)
-#include <math.h>
 #define SUPUNSIGNED	((lua_Number)(~(lua_Unsigned)0) + 1)
 #define lua_number2unsigned(i,n)  \
 	((i)=(lua_Unsigned)((n) - floor((n)/SUPUNSIGNED)*SUPUNSIGNED))
@@ -260,11 +260,8 @@ union luai_Cast { double l_d; LUA_INT32 l_p[2]; };
 #if (defined(ltable_c) || defined(luaall_c)) && !defined(luai_hashnum)
 
 #include <float.h>
-#include <math.h>
 
-#define luai_hashnum(i,n) { int e;  \
-  n = frexp(n, &e) * (lua_Number)(INT_MAX - DBL_MAX_EXP);  \
-  lua_number2int(i, n); i += e; }
+#define luai_hashnum(i,n) lua_number2int(i, n)
 
 #endif
 

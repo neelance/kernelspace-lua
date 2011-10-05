@@ -5,9 +5,6 @@
 */
 
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define lobject_c
 #define LUA_CORE
@@ -69,6 +66,8 @@ int luaO_ceillog2 (unsigned int x) {
   return l + log_2[x];
 }
 
+double pow (double base, double exponent);
+double ldexp (double x, int exp);
 
 lua_Number luaO_arith (int op, lua_Number v1, lua_Number v2) {
   switch (op) {
@@ -91,8 +90,6 @@ int luaO_hexavalue (int c) {
 
 
 #if !defined(lua_strx2number)
-
-#include <math.h>
 
 
 static int isneg (const char **s) {
@@ -156,14 +153,10 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
 
 
 int luaO_str2d (const char *s, size_t len, lua_Number *result) {
-  char *endptr;
-  if (strpbrk(s, "xX"))  /* hexa? */
-    *result = lua_strx2number(s, &endptr);
-  else
-    *result = lua_str2number(s, &endptr);
-  if (endptr == s) return 0;  /* nothing recognized */
-  while (lisspace(cast_uchar(*endptr))) endptr++;
-  return (endptr == s + len);  /* OK if no trailing characters */
+  //if (strpbrk(s, "xX"))  /* hexa? */
+  //  *result = lua_strx2number(s, &endptr);
+  //else
+  return kstrtol(s, 10, result) == 0;
 }
 
 

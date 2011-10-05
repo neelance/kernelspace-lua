@@ -557,7 +557,7 @@ typedef struct Table {
 LUAI_DDEC const TValue luaO_nilobject_;
 
 
-LUAI_FUNC int luaO_int2fb (unsigned int x);
+LUAI_FUNC int luaO_int2fb (lu_int32 x);
 LUAI_FUNC int luaO_fb2int (int x);
 LUAI_FUNC int luaO_ceillog2 (unsigned int x);
 LUAI_FUNC lua_Number luaO_arith (int op, lua_Number v1, lua_Number v2);

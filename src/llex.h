@@ -11,6 +11,7 @@
 #include "lzio.h"
 
 
+#undef current
 #define FIRST_RESERVED	257
 
 

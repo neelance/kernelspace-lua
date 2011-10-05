@@ -8,8 +8,8 @@
 #ifndef lconfig_h
 #define lconfig_h
 
-#include <limits.h>
 #include <stddef.h>
+#include <linux/module.h>
 
 
 /*
@@ -211,9 +211,8 @@
 /*
 @@ luai_writestring/luai_writeline define how 'print' prints its results.
 */
-#include <stdio.h>
-#define luai_writestring(s,l)	fwrite((s), sizeof(char), (l), stdout)
-#define luai_writeline()	(luai_writestring("\n", 1), fflush(stdout))
+#define luai_writestring(s,l)	printk(KERN_INFO, (s))
+#define luai_writeline()	luai_writestring("\n", 1)
 
 /*
 @@ luai_writestringerror defines how to print error messages.
@@ -308,14 +307,14 @@
 ** your machine. Probably you do not need to change this.
 */
 /* avoid overflows in comparison */
-#if INT_MAX-20 < 32760		/* { */
+//#if INT_MAX-20 < 32760		/* { */
 #define LUAI_BITSINT	16
-#elif INT_MAX > 2147483640L	/* }{ */
+//#elif INT_MAX > 2147483640L	/* }{ */
 /* int has at least 32 bits */
-#define LUAI_BITSINT	32
-#else				/* }{ */
-#error "you must define LUA_BITSINT with number of bits in an integer"
-#endif				/* } */
+//#define LUAI_BITSINT	32
+//#else				/* }{ */
+//#error "you must define LUA_BITSINT with number of bits in an integer"
+//#endif				/* } */
 
 
 /*
@@ -362,7 +361,7 @@
 @@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
 ** CHANGE it if it uses too much C-stack space.
 */
-#define LUAL_BUFFERSIZE		BUFSIZ
+#define LUAL_BUFFERSIZE		8192
 
 
 
@@ -376,14 +375,14 @@
 ** ===================================================================
 */
 
-#define LUA_NUMBER_DOUBLE
-#define LUA_NUMBER	double
+//#define LUA_NUMBER_DOUBLE
+#define LUA_NUMBER long
 
 /*
 @@ LUAI_UACNUMBER is the result of an 'usual argument conversion'
 @* over a number.
 */
-#define LUAI_UACNUMBER	double
+#define LUAI_UACNUMBER long
 
 
 /*
@@ -392,8 +391,8 @@
 @@ lua_number2str converts a number to a string.
 @@ LUAI_MAXNUMBER2STR is maximum size of previous conversion.
 */
-#define LUA_NUMBER_SCAN		"%lf"
-#define LUA_NUMBER_FMT		"%.14g"
+#define LUA_NUMBER_SCAN		"%li"
+#define LUA_NUMBER_FMT		"%li"
 #define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 
@@ -419,9 +418,8 @@
 
 /* the following operations need the math library */
 #if defined(lobject_c) || defined(lvm_c) || defined(luaall_c)
-#include <math.h>
-#define luai_nummod(L,a,b)	((a) - floor((a)/(b))*(b))
-#define luai_numpow(L,a,b)	(pow(a,b))
+#define luai_nummod(L,a,b)	((a) - (a)/(b)*(b))
+#define luai_numpow(L,a,b)	(0)
 #endif
 
 /* these are quite standard operations */

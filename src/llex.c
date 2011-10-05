@@ -5,9 +5,6 @@
 */
 
 
-#include <locale.h>
-#include <string.h>
-
 #define llex_c
 #define LUA_CORE
 
@@ -195,6 +192,7 @@ static void buffreplace (LexState *ls, char from, char to) {
     if (p[n] == from) p[n] = to;
 }
 
+#define getlocaledecpoint() '.'
 
 #if !defined(getlocaledecpoint)
 #define getlocaledecpoint()	(localeconv()->decimal_point[0])

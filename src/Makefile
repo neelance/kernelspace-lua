@@ -7,9 +7,12 @@
 PLAT= none
 
 CC= gcc
-CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
+aix ansi bsd freebsd generic linux macosx mingw posix solaris: CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS))
 LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
 LIBS= -lm $(SYSLIBS) $(MYLIBS)
+
+lua-objs = lkmod.o $(CORE_O) lauxlib.o
+obj-m += lua.o
 
 AR= ar rcu
 RANLIB= ranlib
@@ -26,7 +29,7 @@ MYOBJS=
 
 # == END OF USER SETTINGS -- NO NEED TO CHANGE ANYTHING BELOW THIS LINE =======
 
-PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
+PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris kernel
 
 LUA_A=	liblua.a
 CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
@@ -67,6 +70,9 @@ $(LUAC_T): $(LUAC_O) $(LUA_A)
 
 clean:
 	$(RM) $(ALL_T) $(ALL_O)
+
+kernel-clean:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 
 depend:
 	@$(CC) $(CFLAGS) -MM l*.c
@@ -118,6 +124,9 @@ posix:
 
 solaris:
 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN" SYSLIBS="-ldl"
+
+kernel:
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 # list targets that do not create files (but not all makes understand .PHONY)
 .PHONY: all $(PLATS) default o a clean depend echo none
@@ -183,4 +192,3 @@ lvm.o: lvm.c lua.h luaconf.h ldebug.h lstate.h lobject.h llimits.h ltm.h \
  lzio.h lmem.h ldo.h lfunc.h lgc.h lopcodes.h lstring.h ltable.h lvm.h
 lzio.o: lzio.c lua.h luaconf.h llimits.h lmem.h lstate.h lobject.h ltm.h \
  lzio.h
-

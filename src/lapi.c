@@ -6,7 +6,6 @@
 
 
 #include <stdarg.h>
-#include <string.h>
 
 #define lapi_c
 #define LUA_CORE
