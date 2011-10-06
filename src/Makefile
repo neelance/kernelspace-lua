@@ -8,11 +8,9 @@ PLAT= none
 
 CC= gcc
 aix ansi bsd freebsd generic linux macosx mingw posix solaris: CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS))
+EXTRA_CFLAGS= -I$(PWD)/x86-64
 LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
 LIBS= -lm $(SYSLIBS) $(MYLIBS)
-
-lua-objs = lkmod.o $(CORE_O) lauxlib.o
-obj-m += lua.o
 
 AR= ar rcu
 RANLIB= ranlib
@@ -49,6 +47,12 @@ ALL_O= $(BASE_O) $(LUA_O) $(LUAC_O)
 ALL_T= $(LUA_A) $(LUA_T) $(LUAC_T)
 ALL_A= $(LUA_A)
 
+lua-objs= $(CORE_O) lauxlib.o lbaselib.o lbitlib.o lcorolib.o lkmod.o ltablib.o linit.o x86-64/setjmp.o test.o
+obj-m= lua.o
+
+%.o: %.lua
+	cd $(dir $@); $(LD) -s -r -b binary -o $(notdir $@) $(notdir $<); echo "" > .$(notdir $@).cmd; cd -
+
 # Targets start here.
 default: $(PLAT)
 
@@ -72,7 +76,7 @@ clean:
 	$(RM) $(ALL_T) $(ALL_O)
 
 kernel-clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 
 depend:
 	@$(CC) $(CFLAGS) -MM l*.c

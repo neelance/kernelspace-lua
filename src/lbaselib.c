@@ -50,30 +50,6 @@ static int luaB_tonumber (lua_State *L) {
       return 1;
     }  /* else not a number */
   }
-  else {
-    size_t l;
-    const char *s = luaL_checklstring(L, 1, &l);
-    const char *e = s + l;  /* end point for 's' */
-    int neg = 0;
-    s += strspn(s, SPACECHARS);  /* skip initial spaces */
-    if (*s == '-') { s++; neg = 1; }  /* handle signal */
-    else if (*s == '+') s++;
-    if (isalnum((unsigned char)*s)) {
-      lua_Number n = 0;
-      do {
-        int digit = (isdigit((unsigned char)*s)) ? *s - '0'
-                       : toupper((unsigned char)*s) - 'A' + 10;
-        if (digit >= base) break;  /* invalid numeral; force a fail */
-        n = n * (lua_Number)base + (lua_Number)digit;
-        s++;
-      } while (isalnum((unsigned char)*s));
-      s += strspn(s, SPACECHARS);  /* skip trailing spaces */
-      if (s == e) {  /* no invalid trailing characters? */
-        lua_pushnumber(L, (neg) ? -n : n);
-        return 1;
-      }  /* else not a number */
-    }  /* else not a number */
-  }
   lua_pushnil(L);  /* not a number */
   return 1;
 }
@@ -246,12 +222,6 @@ static int load_aux (lua_State *L, int status) {
 }
 
 
-static int luaB_loadfile (lua_State *L) {
-  const char *fname = luaL_optstring(L, 1, NULL);
-  return load_aux(L, luaL_loadfile(L, fname));
-}
-
-
 /*
 ** {======================================================
 ** Generic Read function
@@ -348,20 +318,6 @@ static int luaB_load (lua_State *L) {
 /* }====================================================== */
 
 
-static int dofilecont (lua_State *L) {
-  return lua_gettop(L) - 1;
-}
-
-
-static int luaB_dofile (lua_State *L) {
-  const char *fname = luaL_optstring(L, 1, NULL);
-  lua_settop(L, 1);
-  if (luaL_loadfile(L, fname) != LUA_OK) lua_error(L);
-  lua_callk(L, 0, LUA_MULTRET, 0, dofilecont);
-  return dofilecont(L);
-}
-
-
 static int luaB_assert (lua_State *L) {
   if (!lua_toboolean(L, 1))
     return luaL_error(L, "%s", luaL_optstring(L, 2, "assertion failed!"));
@@ -434,11 +390,9 @@ static int luaB_tostring (lua_State *L) {
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
-  {"dofile", luaB_dofile},
   {"error", luaB_error},
   {"getmetatable", luaB_getmetatable},
   {"ipairs", luaB_ipairs},
-  {"loadfile", luaB_loadfile},
   {"load", luaB_load},
 #if defined(LUA_COMPAT_LOADSTRING)
   {"loadstring", luaB_load},

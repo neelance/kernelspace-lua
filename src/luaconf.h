@@ -211,7 +211,7 @@
 /*
 @@ luai_writestring/luai_writeline define how 'print' prints its results.
 */
-#define luai_writestring(s,l)	printk(KERN_INFO, (s))
+#define luai_writestring(s,l)	printk(s)
 #define luai_writeline()	luai_writestring("\n", 1)
 
 /*

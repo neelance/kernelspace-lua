@@ -1,4 +1,4 @@
-system "make kernel"
+system "make kernel" or exit
 
 system "VBoxManage controlvm Mint poweroff"
 system "VBoxManage snapshot Mint restorecurrent" or exit

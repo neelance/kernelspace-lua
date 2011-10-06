@@ -5,6 +5,10 @@
 */
 
 
+#include "archsetjmp.h"
+extern int setjmp(jmp_buf);
+extern void longjmp(jmp_buf, int);
+
 #define ldo_c
 #define LUA_CORE
 
@@ -35,10 +39,6 @@
 ** Error-recovery functions
 ** =======================================================
 */
-
-#define LUAI_THROW(L,c) 
-#define LUAI_TRY(L,c,a) a
-#define luai_jmpbuf int
 
 /*
 ** LUAI_THROW/LUAI_TRY define how Lua does exception handling. By
@@ -117,6 +117,7 @@ void luaD_throw (lua_State *L, int errcode) {
         G(L)->panic(L);  /* call it (last chance to jump out) */
       }
       //abort();
+      printk(KERN_CRIT "lua: unhandled throw");
     }
   }
 }

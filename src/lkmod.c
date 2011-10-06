@@ -1,31 +1,45 @@
-#include <linux/module.h>	/* Needed by all modules */
-#include <linux/kernel.h>	/* Needed for KERN_INFO */
+#include <linux/module.h>
+#include <linux/kernel.h>
+
 #include "lua.h"
+#include "lualib.h"
 #include "lauxlib.h"
 
-int init_module(void) {
+MODULE_LICENSE("Dual MIT/GPL");
+MODULE_AUTHOR("Richard Musiol <mail@richard-musiol.de>");
+MODULE_DESCRIPTION("Lua scripting in kernel space");
+
+extern char _binary_test_lua_start[];
+
+static int __init lua_module_init(void) {
   lua_State *L;
   int status;
 
 	printk(KERN_INFO "Hello world 1.\n");
 
   L = luaL_newstate();
+  luaL_openlibs(L);
 
-  status = luaL_loadstring(L, "return 12 + 30");
+  status = luaL_loadstring(L, _binary_test_lua_start);
   if (status) {
-    /* If something went wrong, error message is at the top of */
-    /* the stack */
-    printk("Couldn't load file: %s\n", lua_tostring(L, -1));
+    printk(KERN_ERR "lua: could not load file (%s)\n", lua_tostring(L, -1));
     return -1;
   }
 
-	lua_pcall(L, 0, LUA_MULTRET, 0);
+	status = lua_pcall(L, 0, LUA_MULTRET, 0);
+  if (status) {
+    printk(KERN_ERR "lua: could not run script (%s)\n", lua_tostring(L, -1));
+    return -1;
+  }
 
 	printk(KERN_INFO "Result: %ld\n", lua_tonumber(L, -1));
 
 	return 0;
 }
 
-void cleanup_module(void) {
+static void __exit lua_module_exit(void) {
 	printk(KERN_INFO "Goodbye world 1.\n");
 }
+
+module_init(lua_module_init);
+module_exit(lua_module_exit);
